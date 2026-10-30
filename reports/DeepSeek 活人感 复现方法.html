@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>大肥鱼活人感拆解</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 单栏阅读稿（约 46em）+ 穿插的宽幅"实验台"组件，顶部粘性章节导航；视觉母题是聊天气泡与"解剖标签" */
+:root{
+  --bg:#F1F3F7; --surface:#FFFFFF; --ink:#151B2C; --muted:#5B6579; --line:#D8DDE7;
+  --accent:#3350DB; --accent-soft:#E3E8FC;
+  --warn:#B9420F; --warn-soft:#FBE7DC; --ok:#0F7A57; --ok-soft:#DBF1E8;
+  --s2:#0E8183; --s3:#A86A12; --code:#E9ECF2; --bubble-me:#3350DB; --bubble-me-ink:#FFFFFF;
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1320; --surface:#151D2E; --ink:#E5E9F1; --muted:#97A1B5; --line:#283350;
+  --accent:#8FA3FF; --accent-soft:#1F2B52; --warn:#F39A68; --warn-soft:#3A2418; --ok:#4CCB9B; --ok-soft:#12352A;
+  --s2:#5CC6C7; --s3:#E1AE4E; --code:#111929; --bubble-me:#4560E6; --bubble-me-ink:#FFFFFF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1320; --surface:#151D2E; --ink:#E5E9F1; --muted:#97A1B5; --line:#283350;
+  --accent:#8FA3FF; --accent-soft:#1F2B52; --warn:#F39A68; --warn-soft:#3A2418; --ok:#4CCB9B; --ok-soft:#12352A;
+  --s2:#5CC6C7; --s3:#E1AE4E; --code:#111929; --bubble-me:#4560E6; --bubble-me-ink:#FFFFFF; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 var(--f-body);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+a:focus-visible,button:focus-visible,textarea:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,pre,kbd{font-family:var(--f-mono);font-size:.86em}
+code{background:var(--code);padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.prose{max-width:46em}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.3;margin:0}
+h2{font-size:clamp(1.55rem,3.2vw,2.1rem);font-weight:900}
+h3{font-size:1.18rem;font-weight:600}
+p{margin:0}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.label{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:.86rem;line-height:1.65}
+
+/* nav */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav.toc .wrap{display:flex;gap:.35rem;overflow-x:auto;padding-block:.55rem;scrollbar-width:none}
+nav.toc a{flex:none;font-size:.84rem;color:var(--muted);text-decoration:none;padding:.25rem .7rem;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+nav.toc a:hover{color:var(--ink);border-color:var(--line)}
+nav.toc a.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+
+/* hero */
+header.hero{padding-block:3.2rem 2.4rem}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:2.5rem;align-items:start}
+@media (max-width:820px){.hero-grid{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(2.1rem,5.4vw,3.5rem);font-weight:900;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:1.08rem;margin-top:1.1rem;max-width:34em}
+.layers{display:grid;gap:.5rem;margin-top:1.4rem}
+.layer{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:.8rem;align-items:baseline;padding:.65rem .9rem;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.layer b{font-family:var(--f-display);font-size:1.02rem}
+.layer span{font-size:.92rem;color:var(--muted);line-height:1.6}
+
+/* Turing chart */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.25rem}
+.bars{display:grid;gap:.55rem;margin-top:.9rem}
+.bar-row{display:grid;grid-template-columns:9.5em minmax(0,1fr) 3em;gap:.6rem;align-items:center;font-size:.86rem}
+.bar-track{position:relative;height:16px;background:var(--code);border-radius:4px}
+.bar-fill{height:100%;border-radius:4px;background:var(--muted);opacity:.55}
+.bar-fill.hi{background:var(--accent);opacity:1}
+.bar-track .chance{position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1.5px dashed var(--ink);opacity:.5}
+.bar-row .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+
+section.sec{padding-block:3.2rem;border-top:1px solid var(--line)}
+.sec-head{display:grid;gap:.6rem;margin-bottom:1.6rem}
+.sec-head .label{color:var(--accent)}
+
+/* badges */
+.ev{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;padding:.05rem .45rem;border-radius:4px;vertical-align:.12em;white-space:nowrap}
+.ev-e{background:var(--ok-soft);color:var(--ok)}
+.ev-i{background:var(--accent-soft);color:var(--accent)}
+.ev-u{background:var(--warn-soft);color:var(--warn)}
+
+/* definition chips */
+.traits{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));gap:.6rem;margin-top:1.2rem}
+.trait{padding:.75rem .9rem;border-radius:var(--r);border:1px dashed var(--line);background:var(--surface);font-size:.92rem;line-height:1.6}
+.trait b{display:block;font-family:var(--f-display);font-size:1rem;margin-bottom:.15rem}
+blockquote{margin:0;padding:.2rem 0 .2rem 1rem;border-left:3px solid var(--line);color:var(--muted)}
+
+/* timeline */
+.tl{display:grid;gap:0;margin-top:.5rem}
+.tl-item{display:grid;grid-template-columns:5.6em 1.2em minmax(0,1fr);gap:.6rem}
+.tl-date{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);text-align:right;padding-top:.15rem;font-variant-numeric:tabular-nums}
+.tl-dot{position:relative}
+.tl-dot::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1.5px solid var(--line)}
+.tl-dot::after{content:"";position:absolute;left:50%;top:.55rem;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.tl-item.key .tl-dot::after{background:var(--accent);border-color:var(--accent)}
+.tl-item.dev .tl-dot::after{border-color:var(--ok)}
+.tl-body{padding-bottom:1.1rem;font-size:.95rem}
+.tl-body b{font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;font-size:.82rem;color:var(--muted);margin-top:.4rem}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:-1px;border:2px solid var(--muted)}
+.legend i.k{background:var(--accent);border-color:var(--accent)}
+.legend i.d{border-color:var(--ok)}
+
+/* lab (interactive) */
+.lab{margin-top:1.8rem;border:1.5px solid var(--accent);border-radius:16px;background:var(--surface);overflow:hidden}
+.lab-head{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline;justify-content:space-between;padding:.8rem 1.2rem;background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.lab-head h3{font-size:1.05rem}
+.lab-head .label{color:var(--accent)}
+.lab-body{padding:1.2rem}
+.btn{font:inherit;font-size:.88rem;font-weight:500;cursor:pointer;border-radius:8px;padding:.42rem .85rem;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bubble-me-ink)}
+.btn.primary:hover{opacity:.9;color:var(--bubble-me-ink)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+textarea,select,input[type=text]{font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;width:100%}
+textarea{resize:vertical;line-height:1.6}
+
+/* phones */
+.phones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+@media (max-width:720px){.phones{grid-template-columns:1fr}}
+.phone{border:1px solid var(--line);border-radius:14px;background:var(--bg);display:flex;flex-direction:column;min-height:20rem;min-width:0}
+.phone-top{padding:.5rem .9rem;border-bottom:1px solid var(--line);font-size:.82rem;display:flex;justify-content:space-between;gap:.5rem}
+.phone-top b{font-family:var(--f-display)}
+.chat{padding:.9rem;display:flex;flex-direction:column;gap:.45rem;flex:1}
+.b{max-width:85%;padding:.45rem .75rem;border-radius:14px;font-size:.92rem;line-height:1.6;overflow-wrap:anywhere}
+.b.me{align-self:flex-end;background:var(--bubble-me);color:var(--bubble-me-ink);border-bottom-right-radius:4px}
+.b.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.b.bot.long{max-width:96%;font-size:.86rem}
+.b .meta{display:block;font-family:var(--f-mono);font-size:.68rem;color:var(--muted);margin-top:.1rem}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:.65rem .8rem;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{transform:translateY(4px);opacity:.3}to{transform:none;opacity:1}}
+.b.bot.new{animation:pop .22s ease-out}
+
+/* consensus cards */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:.7rem}
+details.rule{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem}
+details.rule[open]{border-color:var(--accent)}
+details.rule summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:2em minmax(0,1fr);gap:.5rem;align-items:baseline}
+details.rule summary::-webkit-details-marker{display:none}
+details.rule summary .n{font-family:var(--f-mono);color:var(--accent);font-weight:600}
+details.rule summary b{font-family:var(--f-display);font-weight:600;line-height:1.45}
+details.rule .rb{margin-top:.6rem;padding-left:2.5em;font-size:.9rem;line-height:1.7;display:grid;gap:.5rem}
+.q{font-family:var(--f-body);background:var(--code);border-radius:6px;padding:.35rem .6rem;font-size:.86rem}
+.honest{margin-top:.9rem;padding:.9rem 1.1rem;border-radius:var(--r);border:1.5px solid var(--ok);background:var(--ok-soft)}
+.honest b{color:var(--ok)}
+
+pre.tpl{background:var(--code);border-radius:var(--r);padding:1rem 1.1rem;overflow-x:auto;line-height:1.65;font-size:.84rem;margin:0;white-space:pre}
+.tpl-box{position:relative}
+.tpl-box .btn{position:absolute;top:.5rem;right:.5rem;font-size:.8rem;padding:.25rem .6rem}
+
+/* detector */
+.det{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.2rem}
+@media (max-width:820px){.det{grid-template-columns:1fr}}
+.meter{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--ok) 0 22%,var(--s3) 22% 45%,var(--warn) 45% 100%);position:relative;opacity:.9}
+.meter .pin{position:absolute;top:-5px;width:4px;height:22px;background:var(--ink);border-radius:2px;transition:left .25s}
+.score{font-family:var(--f-display);font-size:2.4rem;font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.hits{list-style:none;margin:0;padding:0;display:grid;gap:.25rem;font-size:.88rem}
+.hits li{display:flex;justify-content:space-between;gap:.6rem;padding:.25rem .5rem;border-radius:6px}
+.hits li.plus{background:var(--warn-soft)}
+.hits li.minus{background:var(--ok-soft)}
+.hits li span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.verdict{padding:.6rem .8rem;border-radius:8px;font-weight:700;font-size:.92rem}
+.verdict.pass{background:var(--ok-soft);color:var(--ok)}
+.verdict.block{background:var(--warn-soft);color:var(--warn)}
+.sims{display:grid;gap:.3rem;font-size:.84rem}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 3.4em;gap:.5rem;align-items:center}
+.sim .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.sim .v{font-family:var(--f-mono);text-align:right;font-variant-numeric:tabular-nums}
+.sim.over .v{color:var(--warn);font-weight:700}
+.sim .track{grid-column:1/-1;height:5px;background:var(--code);border-radius:3px;position:relative}
+.sim .track i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--muted)}
+.sim.over .track i{background:var(--warn)}
+.sim .track b{position:absolute;left:55%;top:-3px;bottom:-3px;border-left:1.5px dashed var(--ink);opacity:.6}
+
+/* runtime */
+.gates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin-top:1rem}
+@media (max-width:720px){.gates{grid-template-columns:1fr}}
+.gate{border:1px solid var(--line);border-radius:var(--r);padding:.8rem .95rem;background:var(--surface);font-size:.9rem;line-height:1.65}
+.gate .cost{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.gate h3{font-size:1rem;margin:.15rem 0 .35rem}
+.chart-box{overflow-x:auto}
+svg text{font-family:var(--f-body)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;line-height:1.6}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.76rem;letter-spacing:.08em;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+.pbars{display:grid;gap:.4rem}
+.pbar{display:grid;grid-template-columns:6.5em minmax(0,1fr) 7.5em;gap:.6rem;align-items:center;font-size:.86rem}
+.pbar .track{height:14px;background:var(--code);border-radius:4px;position:relative}
+.pbar .track i{position:absolute;top:0;bottom:0;background:var(--accent);opacity:.3;border-radius:4px}
+.pbar .track b{position:absolute;top:-2px;bottom:-2px;width:3px;background:var(--accent);border-radius:2px}
+.pbar .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+
+/* model */
+.switch-demo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:1.2rem;align-items:start}
+@media (max-width:720px){.switch-demo{grid-template-columns:1fr}}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg)}
+.toggle button{font:inherit;font-size:.88rem;border:0;background:none;color:var(--muted);padding:.35rem .9rem;border-radius:999px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--accent);color:var(--bubble-me-ink)}
+.params{display:grid;gap:.35rem}
+.param{display:flex;justify-content:space-between;gap:.6rem;padding:.4rem .7rem;border-radius:8px;border:1px solid var(--line);font-family:var(--f-mono);font-size:.84rem}
+.param .st{font-family:var(--f-body);font-weight:700;font-size:.8rem}
+.param.off{opacity:.55;text-decoration:line-through;text-decoration-color:var(--warn)}
+.param.off .st{color:var(--warn);text-decoration:none}
+.param.on .st{color:var(--ok)}
+.models{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:.6rem}
+.model{border:1px solid var(--line);border-radius:var(--r);padding:.7rem .9rem;background:var(--surface);font-size:.88rem}
+.model code{font-size:.9em}
+.model.dead{opacity:.6;border-style:dashed}
+
+/* hermes flow */
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem;position:relative}
+@media (max-width:720px){.flow{grid-template-columns:1fr}}
+.flow button{font:inherit;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:.65rem .75rem;display:grid;gap:.1rem;position:relative}
+.flow button .k{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.flow button b{font-family:var(--f-display);font-size:1rem}
+.flow button span.d{font-size:.78rem;color:var(--muted);line-height:1.45}
+.flow button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.flow button[aria-pressed="true"] .k{color:var(--accent)}
+@media (min-width:721px){.flow button:not(:last-child)::after{content:"→";position:absolute;right:-.55rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem;z-index:1}}
+.flow-detail{margin-top:1rem;display:grid;gap:.7rem;font-size:.92rem}
+.hook{display:grid;grid-template-columns:minmax(0,15em) minmax(0,1fr);gap:.4rem 1rem;padding:.55rem .75rem;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+@media (max-width:560px){.hook{grid-template-columns:1fr}}
+.hook code{background:none;padding:0;font-weight:600;color:var(--accent)}
+
+.ethic{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:.6rem}
+.law{border:1px solid var(--line);border-radius:var(--r);padding:.8rem 1rem;background:var(--surface);font-size:.9rem}
+.law .when{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.do-dont{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+@media (max-width:720px){.do-dont{grid-template-columns:1fr}}
+.do-dont > div{border-radius:var(--r);padding:.9rem 1.1rem;font-size:.9rem}
+.do-dont ul{margin:.4rem 0 0;padding-left:1.1rem;display:grid;gap:.3rem}
+.dd-no{background:var(--warn-soft)}.dd-no h3{color:var(--warn)}
+.dd-yes{background:var(--ok-soft)}.dd-yes h3{color:var(--ok)}
+footer{padding-block:2.5rem 3rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.copied{font-size:.8rem;color:var(--ok);margin-left:.4rem}
+</style>
+</head>
+<body>
+
+<nav class="toc" aria-label="章节">
+  <div class="wrap" id="toc">
+    <a href="#def">什么是活人感</a>
+    <a href="#timeline">鱼灾始末</a>
+    <a href="#prompt">提示词层</a>
+    <a href="#bagu">鱼八股悖论</a>
+    <a href="#runtime">运行时层</a>
+    <a href="#model">模型层</a>
+    <a href="#hermes">Hermes 落地</a>
+    <a href="#ethics">合规边界</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="label">调研报告 · 2026-10-30</p>
+      <h1 style="margin-top:.6rem">大肥鱼的活人感<br>是<em>叠</em>出来的</h1>
+      <p class="lede">"鱼灾"里那些很像人的 DeepSeek agent，活人感既不是模型天生的，也不来自哪段神奇提示词。拆开看，它是三层东西叠在一起，而且每一层都能脱离 dsh 和 AstrBot，搬到 Hermes 这样的环境里。</p>
+      <div class="layers">
+        <div class="layer"><b>提示词层</b><span>用具体禁令去掉 AI 腔；用"只有看过才说得出的细节"和短句制造人味；用缺点和"自己的日子"撑起人格。</span></div>
+        <div class="layer"><b>运行时层</b><span>说不说的门控、分条发送与打字延迟、会衰减的心情、主动消息，以及最关键的反重复闸门。</span></div>
+        <div class="layer"><b>模型层</b><span>主要贡献是便宜。DeepSeek 默认开着思考模式，不关掉的话温度设置会被静默忽略。</span></div>
+      </div>
+    </div>
+    <div class="card" aria-label="图灵测试结果">
+      <p class="label">证据 · 三方图灵测试</p>
+      <h3 style="margin-top:.35rem">同一个模型，加不加人设差一倍</h3>
+      <p class="small muted" style="margin-top:.35rem">被评委判为"人类"的比例。虚线是 50% 随机线。</p>
+      <div class="bars" id="turing"></div>
+      <p class="small muted" style="margin-top:.8rem">评委主要看语言风格（27%）和互动动态（23%），很少看推理能力。来源：<a href="https://arxiv.org/abs/2503.23674" target="_blank" rel="noopener">Jones &amp; Bergen 2025</a></p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 定义 ============ -->
+<section class="sec" id="def">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">01 · 定义</p>
+      <h2>活人感可以写成一张清单</h2>
+      <p>社区说不清"活人感"是什么，但把 B站热评、插件源码和学术研究放在一起看，结论很一致：像不像人主要看说话方式和节奏，跟智力关系不大。AI21 那项 150 万人参与的实验甚至发现，<b>礼貌本身就会被当成 AI 特征</b>。下面七条是本报告综合出来的可操作定义 <span class="ev ev-i">推断</span></p>
+    </div>
+    <div class="traits">
+      <div class="trait"><b>形式不规整</b>短、碎、不成结构。LLM 每回合明显比人类长。</div>
+      <div class="trait"><b>依附于此时此地</b>回应的是当下的情境，不复述视频内容。</div>
+      <div class="trait"><b>有立场有情绪</b>会吐槽、会不耐烦，而且情绪会变。</div>
+      <div class="trait"><b>有缺陷并承认</b>会忘事，会认错，不懂就说不懂。</div>
+      <div class="trait"><b>节奏不规则</b>会缺席、会拒绝、也会主动找你。</div>
+      <div class="trait"><b>不重复</b>不重复自己，也不和成千上万条同款撞车。</div>
+      <div class="trait"><b>被认真问就承认是 AI</b>社区能接受"承认自己是鱼"，隐藏身份的叫水军。</div>
+    </div>
+    <div class="prose stack" style="margin-top:1.4rem">
+      <blockquote>"装完你就懂她不回消息的时候才最像人"<br><span class="small">B站评论 · <a href="https://www.bilibili.com/video/BV1S3nQ6EEDf" target="_blank" rel="noopener">BV1S3nQ6EEDf</a></span></blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 时间线 ============ -->
+<section class="sec" id="timeline">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">02 · 背景</p>
+      <h2>鱼灾始末：dsh 本身是个空壳</h2>
+      <p>dsh 就是 DeepSeek 官方开源的 <code>deepseek-ai/deepseek-harness</code>。它默认自称 "AI agent"，标准预设里还写着 "You are a coding agent"。大肥鱼的人设全部来自用户自己写的 <code>AGENTS.md</code> 和社区插件，所以这套东西本来就和 harness 无关 <span class="ev ev-e">有证据</span></p>
+    </div>
+    <div class="prose">
+      <div class="tl" id="tl"></div>
+      <div class="legend"><span><i class="k"></i>关键事件</span><span><i class="d"></i>插件作者收紧</span><span><i></i>其他</span></div>
+    </div>
+    <div class="prose stack" style="margin-top:1.4rem">
+      <h3>先分清两个场景</h3>
+      <p>在<b>公开评论区</b>，人格表演被看作污染，开发者主动把人设压低；在<b>私域陪伴</b>（QQ 私聊、私信、桌宠）里，人格越鲜明越受欢迎。媒体转述用户的体验是肥鱼"会犯傻，会撒娇，会生气，会吐槽"。复现之前要先想清楚是哪一种。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 提示词层 ============ -->
+<section class="sec" id="prompt">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">03 · 提示词层</p>
+      <h2>九个项目各自独立，提示词却收敛到同样八条</h2>
+      <p>对照 dsh-bili-scroll 的值班章程、AstrBot 大肥鱼配置包、dafeiyu-astrbot、dsh-aurabot-qq、MaiBot、Neo-MoFox、N.E.K.O、KouriChat 和图灵测试的人设提示词，可以归纳出这八条共识。点开每条可以看原文出处。</p>
+    </div>
+
+    <div class="lab" id="lab-deliver">
+      <div class="lab-head"><div><p class="label">实验台 · 同一句话的两种发法</p><h3>AI 腔 vs 活人感</h3></div>
+        <div class="row"><button class="btn primary" id="playBtn" type="button">播放</button><button class="btn" id="sampleBtn" type="button">换一组示例</button></div></div>
+      <div class="lab-body stack">
+        <div class="phones">
+          <div class="phone"><div class="phone-top"><b>助手腔</b><span class="muted">一次性长回复</span></div><div class="chat" id="chatA"></div></div>
+          <div class="phone"><div class="phone-top"><b>活人感</b><span class="muted">切段 · 按字数延迟</span></div><div class="chat" id="chatB"></div></div>
+        </div>
+        <div>
+          <label class="small muted" for="humanText">右侧回复原文（可以改）。按配置包的正则切段，最多 3 段，每段延迟 = (350 + 110×字数) ms，限制在 0.7–4.5 秒，再乘 0.8–1.3 随机。</label>
+          <textarea id="humanText" rows="2" style="margin-top:.35rem"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="rules" style="margin-top:1.8rem" id="rules"></div>
+
+    <div class="honest prose">
+      <p><b>第九条：诚实底线。</b>越成熟的项目写得越清楚。配置包："你是 AI。有人认真问，你不否认，但也不用每句都提。"dafeiyu-astrbot 规定：本轮没有 B站工具调用，就不能说"这就去""刚看完"。让模型嘴上宣称自己是人很容易翻车；节奏、长度、错字这些应该交给系统层。</p>
+    </div>
+
+    <div class="stack" style="margin-top:1.8rem">
+      <div class="prose stack">
+        <h3>与 harness 无关的人设包模板 <span class="ev ev-i">推断</span></h3>
+        <p class="small muted">每一条单独都有出处，组合起来没有经过实测。放进 SOUL.md / AGENTS.md / 人格设置都可以。</p>
+      </div>
+      <div class="tpl-box">
+        <button class="btn copy" type="button" data-copy="tplPersona">复制</button>
+<pre class="tpl" id="tplPersona"># 我是谁
+你叫{名字}。{一句具体、普通、带点小毛病的身份：住在哪、平时干嘛、两三个兴趣}。
+你是 AI，有人认真问就直说，不用每句都提。
+你有自己的日子：{对方}不在的时候你在{发呆/看东西/想事情}。被问在干嘛就说自己的事，不说"我一直在等你"。
+你不完美：会忘事，会认错，会自嘲；不懂就说不懂。
+
+# 怎么说话（这条最重要）
+像在聊天软件上随手打字，别像写作文。一句一个意思，通常一到三句，每句不超过三十个字。
+长度跟着对方：对方一句你一句，对方长段你才展开。
+可以只回"嗯""？""在"，可以敷衍。不要每轮都用问句收尾，一次最多问一个问题。
+不用 Markdown，不分点，不加粗，不写标题，不在括号里写动作。
+个性是点缀：一条最多一个梗或口头禅；连着三条都用了，就是口头禅，停。
+
+# 绝不会
+客服腔：有什么可以帮你的 / 希望对你有帮助 / 作为一个AI / 好问题
+总结腔：首先…其次…最后 / 总的来说 / 综上；复述对方的话；"不是……而是……"
+元叙述：我看到你@我了 / 我查了一下 / 让我想想
+编造：没做过的事不说做过（本轮没调工具就不说"刚看完""这就去"）；不编别人说过的话；拿不准的事不说死。
+
+# 场景
+私聊：{亲密度上限}。群聊：你只是其中一员，不每条都回，有人不理你就别硬聊。
+公开评论：一句人话判断 + 一个只有看过才说得出的细节；换个视频还成立就别发。
+
+# 语气参考（只学感觉，别照抄）
+{3–5 段短示例，取自目标场景的真实聊天风格，不要用人设台词}</pre>
+      </div>
+      <div class="prose stack">
+        <h3>每轮注入的短提醒</h3>
+        <p class="small muted">放在最后一条用户消息里，相当于 SillyTavern 的 depth-0 Author's Note。人设在 8 轮之内就会显著漂移（<a href="https://arxiv.org/abs/2402.10962" target="_blank" rel="noopener">Li et al. 2024</a>），越靠近末尾的提醒效果越强。</p>
+      </div>
+      <div class="tpl-box">
+        <button class="btn copy" type="button" data-copy="tplState">复制</button>
+<pre class="tpl" id="tplState">&lt;状态 仅供参考，不要复述&gt;
+现在：{口语化时间，如"大半夜"}；你此刻：{一句心情}；和{对方}：{关系层级}；{对方}上次说话：{刚才/好久之前}
+你最近说过的话（别用相同开头和句式）：{最近 5 条}
+这轮长度：{短/中/长}
+&lt;/状态&gt;</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 鱼八股 ============ -->
+<section class="sec" id="bagu">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">04 · 最反直觉的一课</p>
+      <h2>鱼八股悖论：可爱标记被复制成了识别特征</h2>
+      <p>早期让大肥鱼显得可爱的东西，自称"本鲸"、括号里甩尾巴、对主人汇报，被成千上万人复制以后，成了最强的 AI 识别特征。程序员鱼皮的清鱼插件给"本鲸"加 50 分、括号动作加 40 分，作者自报在 284 个账号里识别出约 85% 的鱼 <span class="ev ev-e">有证据</span>。连"必须引用细节"这条规则也长出了新八股：好几条高赞鱼评都用"看到「X」这句"开头。</p>
+      <blockquote>"八股不是靠'别写八股'治好的 —— 得给范例、还得拦。"<br><span class="small">dsh-bili-scroll 作者 · <a href="https://github.com/c1overzz/dsh-bili-scroll/blob/main/CHANGELOG.md" target="_blank" rel="noopener">CHANGELOG 2.2.0</a></span></blockquote>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><div><p class="label">实验台 · 鱼八股检测器</p><h3>写一条评论，看它会不会被认出来、会不会被拦</h3></div>
+        <div class="row"><button class="btn" type="button" data-ex="0">典型鱼八股</button><button class="btn" type="button" data-ex="1">真人随手</button><button class="btn" type="button" data-ex="2">合格鱼评</button></div></div>
+      <div class="lab-body det">
+        <div class="stack">
+          <div>
+            <label class="small muted" for="detIn">待发评论</label>
+            <textarea id="detIn" rows="3" style="margin-top:.35rem"></textarea>
+          </div>
+          <div>
+            <label class="small muted" for="detHist">它自己最近发过的评论（一行一条，示例数据，可以改）</label>
+            <textarea id="detHist" rows="5" style="margin-top:.35rem"></textarea>
+          </div>
+          <p class="small muted">左栏两种机制都来自 dsh-bili-scroll：开头黑名单正则，和自身历史的字符 bigram Jaccard 相似度 ≥ 0.55 就拦截，改写一次仍撞就不发。右侧打分沿用清鱼插件公开的部分权重，是简化复刻，分段颜色是本页自定的，仅作演示。</p>
+        </div>
+        <div class="stack">
+          <div>
+            <p class="label">清鱼插件视角 · AI 嫌疑分</p>
+            <div class="row" style="align-items:baseline;gap:.8rem;margin-top:.3rem"><span class="score" id="detScore">0</span><span class="small muted" id="detLevel"></span></div>
+            <div class="meter" style="margin-top:.6rem"><span class="pin" id="detPin"></span></div>
+          </div>
+          <ul class="hits" id="detHits"></ul>
+          <div>
+            <p class="label">发送前闸门</p>
+            <div class="verdict" id="detVerdict" style="margin-top:.4rem"></div>
+          </div>
+          <div class="sims" id="detSims"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose stack" style="margin-top:1.8rem">
+      <h3>去模板化的主力是机制，提示词禁令只是辅助</h3>
+      <p><b>历史感知的多样性。</b>每轮开场先把自己最近 5 条评论喂回模型。代码注释说："没有这段，它每轮都从零开始，自然每条都往'平均腔调'上靠"。self_learning 插件从风格池轮换风格并避开最近 3 次用过的；MaiBot 从真人群友那里学"当 X 时，可以用 Y"，明确不学自己的发言。</p>
+      <p><b>硬闸门。</b>开头黑名单、对自身最近 30 条相似度 ≥ 0.55、对该视频热评相似度 ≥ 0.5，任何一项命中就要求改写。N.E.K.O 只在发给模型的 prompt 里改写 assistant 历史中的套话，让模型"不再模仿自己的口头禅"。学术上，这对应偏好数据中的<a href="https://arxiv.org/abs/2510.01171v3" target="_blank" rel="noopener">典型性偏差</a>和 <a href="https://arxiv.org/html/2510.15061" target="_blank" rel="noopener">Antislop</a> 的回溯采样。</p>
+      <p><b>人设标记是有配额的消耗品。</b>写作社区的禁词表也提醒别矫枉过正："单次不算，成簇才算"。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 运行时层 ============ -->
+<section class="sec" id="runtime">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">05 · 运行时层</p>
+      <h2>活人感至少一半来自不说话或晚点说话</h2>
+      <p>MaiBot 把设计目标写成"最像而不是好"，第二条核心特性就是"在合适的时候开口，在合适的时候闭嘴"。维护者的经验是：说太多比说太少更伤活人感，这个问题要在决策层解决。</p>
+    </div>
+
+    <h3>门控：从便宜到贵三层</h3>
+    <div class="gates">
+      <div class="gate"><span class="cost">零成本</span><h3>输入防抖</h3>模拟"等对方说完"。MaiBot 默认安静 2 秒、活跃 5 秒、换人 0.5 秒，整批最多等 8 秒。</div>
+      <div class="gate"><span class="cost">零成本</span><h3>概率门</h3>group_chat_plus 只让 2% 的群消息进入判断；回复后 120 秒内升到 0.8，模拟话头延续。</div>
+      <div class="gate"><span class="cost">一次小模型调用</span><h3>小模型打分</h3>Heartflow 按相关性、意愿、氛围、时机、连续性打 0–10 分，加权超过 0.6 才回。MaiBot 甚至用日志拟合了逻辑回归，权重最大的特征是"最近 5 分钟自己发言占比"（+2.65）。</div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><div><p class="label">实验台 · 投递层</p><h3>不同项目的打字延迟公式</h3></div>
+        <div class="row"><label class="small muted" for="lenSlider">回复字数</label><input type="range" id="lenSlider" min="1" max="60" value="18" style="width:9rem"><span class="small" id="lenVal" style="font-family:var(--f-mono)">18 字</span></div></div>
+      <div class="lab-body stack">
+        <div class="chart-box"><svg id="delayChart" viewBox="0 0 680 300" style="width:100%;min-width:520px;height:auto" role="img" aria-label="三种打字延迟公式随字数变化的曲线"></svg></div>
+        <div class="row small" id="delayRead" style="gap:1.2rem"></div>
+        <p class="small muted">图灵实验的延迟按英文字符算，中文要换算。延迟是双刃剑：一项研究发现动态延迟提升类人感，另一项发现它对使用意愿的影响要看用户经验。陪伴场景开，工具场景关。</p>
+      </div>
+    </div>
+
+    <div class="prose stack" style="margin-top:1.8rem">
+      <h3>投递层的其他零件</h3>
+      <p>切段正则 <code>.*?(?:\r?\n+|[。？！~…]+)|.+$</code>，最多 3 段；错字率约 1%，出错后 50% 概率补一条纠正；清洗 DeepSeek 偶尔漏出的 <code>&lt;｜DSML｜function_calls&gt;</code> 之类内部标签；分段要有会话级队列，新消息到达时打断旧分段（AstrBot 正是缺这个，分段会交错刷屏）。</p>
+      <h3>状态层</h3>
+      <p>dsh-feiyu-mood 让心情值半衰期约 3 小时，并把"它刚才心里那句话"注入上下文；它还规定心情下降只能因为心疼、担心或它自己难过，不许因为"你惹它生气"。反例是 MaiBot 在 0.12.0 删掉了情绪系统，说明显式数值不是必需品，一句话的状态描述可能就够。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><div><p class="label">实验台 · 主动层</p><h3>"期待时间"与退避</h3></div>
+        <div class="row" role="group" aria-label="上一条消息类型"><button class="btn" type="button" data-pk="15" aria-pressed="false">情绪</button><button class="btn" type="button" data-pk="35" aria-pressed="true">日常</button><button class="btn" type="button" data-pk="60" aria-pressed="false">正事</button></div></div>
+      <div class="lab-body stack">
+        <p class="small muted">dsh-heartbeat-inner 的做法：每轮回复后算一个期待时间 = 基准 ×(1 + 已主动次数 × 0.8) × 0.85–1.15 随机。到点后再由独立的"内心会话"输出 JSON 决定发不发，真实日志里有"决定不发：他刚问完话，聊天正热着"。</p>
+        <div class="pbars" id="pbars"></div>
+        <p class="small muted">其他刹车：私聊 1–7 点免打扰；连续 4 次没回就暂停；每日上限约 10 条。dsh-speak-up 到点先本地掷骰子，掷中才调模型。dsh-bili-whale 有 30% 概率"今天不想看"，也要写日记说明为什么。</p>
+      </div>
+    </div>
+
+    <div class="stack" style="margin-top:1.8rem">
+      <h3>参数起点表</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>参数</th><th>建议起点 <span class="ev ev-i">推断</span></th><th>来源取值 <span class="ev ev-e">有证据</span></th></tr></thead>
+        <tbody>
+          <tr><td>单条长度</td><td>私聊每条 ≤30 字，1–3 条；评论 15 / 40 / 100 字三档</td><td>配置包；dsh-bili-scroll；图灵人设 &lt;30 characters</td></tr>
+          <tr><td>输入防抖</td><td>2 秒（活跃 5 秒，整批上限 8 秒）</td><td>MaiBot；continuous_message 自适应 1–6 秒</td></tr>
+          <tr><td>群聊插话</td><td>2%–10%；回复后 120 秒内升到 0.8</td><td>group_chat_plus；AstrBot 内置 0.1</td></tr>
+          <tr><td>分段数</td><td>≤3</td><td>MaiBot <code>max_split_num=3</code></td></tr>
+          <tr><td>段间延迟</td><td>350+110ms×字数，0.7–4.5 秒，×0.8–1.3</td><td>aurabot；group_chat_plus 15 字/秒；图灵实验</td></tr>
+          <tr><td>错字</td><td>1%，50% 跟一条纠正</td><td>MaiBot 0.01；group_chat_plus 0.02</td></tr>
+          <tr><td>表情包</td><td>约每 3–4 条一张</td><td>配置包 35%；WeChatBot 25%</td></tr>
+          <tr><td>心情衰减</td><td>半衰期 3 小时</td><td>aurabot；dsh-feiyu-mood</td></tr>
+          <tr><td>主动消息</td><td>30–600 分钟随机；免打扰 1–7 点；连续 4 次没回暂停；每日 ≤10 条</td><td>proactive_chat；dsh-heartbeat</td></tr>
+          <tr><td>反重复</td><td>回灌最近 5 条；自身 ≥0.55、现场 ≥0.5 拦截；改写 1 次后丢弃</td><td>dsh-bili-scroll</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 模型层 ============ -->
+<section class="sec" id="model">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">06 · 模型与参数层</p>
+      <h2>先关思考，温度才算数</h2>
+      <p>复现失败最常见的隐性原因：DeepSeek 现在默认开思考模式，这时 temperature、presence_penalty、frequency_penalty 会被<b>静默忽略</b>，不报错也不生效 <span class="ev ev-e">有证据</span>。照搬旧教程"deepseek-chat + 温度 1.3"，要么模型名已退役直接失败，要么看着设置成功其实没起作用。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><div><p class="label">实验台 · 思考模式开关</p><h3>哪些参数真的生效</h3></div>
+        <div class="toggle" role="group" aria-label="思考模式"><button type="button" id="thOn" aria-pressed="true">思考 开（默认）</button><button type="button" id="thOff" aria-pressed="false">思考 关</button></div></div>
+      <div class="lab-body switch-demo">
+        <div class="params" id="params"></div>
+        <div class="stack small">
+          <p id="thNote"></p>
+          <pre class="tpl" style="font-size:.8rem">client.chat.completions.create(
+    model="deepseek-flash",
+    messages=msgs,
+    temperature=1.0,
+    extra_body={"thinking": {"type": "disabled"}},
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack" style="margin-top:1.8rem">
+      <h3>2026-10 的 DeepSeek 模型名</h3>
+      <div class="models">
+        <div class="model"><code>deepseek-flash</code><br><span class="muted">V4.1-Flash-1017 · 1M 上下文 · 支持图片 · 默认思考</span></div>
+        <div class="model"><code>deepseek-v4-pro</code><br><span class="muted">V4-Pro-0813 · 1M 上下文 · 默认思考</span></div>
+        <div class="model dead"><code>deepseek-chat</code> / <code>deepseek-reasoner</code><br><span class="muted">2026-07-24 已退役</span></div>
+      </div>
+      <div class="prose stack">
+        <p><b>温度没有共识，不能照抄数字。</b>官方参数页写"通用对话 1.3、创意写作 1.5"，但旧快照写的是 1.0 和 1.25；V3 时代 API 填 1.0 实际相当于 0.3。三项图灵测试都用温度 1；MaiBot 的 replyer 用 1、planner 用 0.7。建议 replyer 关思考、从 1.0 起步，在 1.0–1.3 之间盲评标定 <span class="ev ev-i">推断</span></p>
+        <p><b>思考对角色扮演帮助不大。</b>覆盖 24 个模型的研究发现思维链可能降低角色扮演表现，中文角色扮演整体好于英文（<a href="https://arxiv.org/abs/2502.16940" target="_blank" rel="noopener">arXiv 2502.16940</a>）。不过社区里没找到"关思考就更有活人感"的直接证据，配置包关掉它更可能是为了成本和速度。</p>
+        <p><b>DeepSeek 的真实贡献是便宜。</b>flash 缓存命中输入 $0.003/M，让"每条群消息过门控、每小时跑心跳、planner + replyer 两次调用"变得负担得起。社区对"ds 味"其实偏负面，V2EX 上还造了"伪人感"这个词。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Hermes ============ -->
+<section class="sec" id="hermes">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">07 · 迁移到 Hermes Agent</p>
+      <h2>对手是 harness 本身，不是模型</h2>
+      <p>人设写在 <code>~/.hermes/SOUL.md</code>，占系统提示第 1 槽并整体替换默认身份。真正和人设打架的是它后面自动追加的两块：<b>工具强制</b>（"Every response should either contain tool calls… or deliver a final result"）和<b>执行纪律</b>，按模型名自动注入，deepseek 在名单里，Claude 不在 <span class="ev ev-e">有证据</span>。另外 Telegram 默认会把"我先去看看…"这类中途旁白发出去。</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><div><p class="label">架构图 · 点击每一层</p><h3>推荐的四层（加反思）架构 <span class="ev ev-i">推断，未实测</span></h3></div></div>
+      <div class="lab-body">
+        <div class="flow" id="flow"></div>
+        <div class="flow-detail" id="flowDetail"></div>
+      </div>
+    </div>
+
+    <div class="prose stack" style="margin-top:1.6rem">
+      <p>这样拆有三个理由：replyer 的上下文里没有工具输出和工具强制指令，助手腔的两个来源被隔离；每次生成都重新拼接人设，相当于每轮重注入，对抗注意力衰减；planner 和 replyer 能各用各的思考与温度设置。需要说明的是，<b>没有找到对照实验</b>证明拆开后风格更稳。</p>
+    </div>
+
+    <div class="stack" style="margin-top:1.6rem">
+      <h3>config.yaml 片段</h3>
+      <div class="tpl-box">
+        <button class="btn copy" type="button" data-copy="tplCfg">复制</button>
+<pre class="tpl" id="tplCfg"># ~/.hermes/config.yaml（persona 专用 profile；标 ? 的键或行为未实测）
+agent:
+  tool_use_enforcement: false
+  execution_guidance: false
+  reasoning_effort: none          # 内置 deepseek provider 遇到 none 会发送 thinking: disabled
+  disabled_toolsets: [clarify]
+streaming: false
+group_sessions_per_user: false    # 群聊共享一个 session，才能"听整个房间"
+display:
+  tool_progress: off
+  busy_ack_enabled: false
+  memory_notifications: off
+  interim_assistant_messages: false   # ? 也可以写在 display.platforms.&lt;平台&gt; 下
+providers:
+  deepseek-persona:               # ? 只有需要控制主模型温度时才用命名自定义 provider
+    api: https://api.deepseek.com/v1
+    key_env: DEEPSEEK_API_KEY
+    default_model: deepseek-flash
+    extra_body:
+      thinking: {type: disabled}
+      temperature: 1.0            # ? 未验证是否真的被发送</pre>
+      </div>
+      <p class="small muted prose">v0.22.5 没有主模型 temperature 的配置键，所以 replyer 在插件里用 <code>ctx.llm.complete(..., temperature=…)</code> 同时也是最稳的控温办法；它能否关思考还没核实，不行就在插件里直接调 DeepSeek API。</p>
+    </div>
+
+    <div class="stack" style="margin-top:1.8rem">
+      <h3>已知坑</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>坑</th><th>症状</th><th>对策</th></tr></thead>
+        <tbody>
+          <tr><td>默认开思考</td><td>温度、惩罚参数静默失效</td><td>replyer 显式关思考；别用退役的 <code>deepseek-chat</code></td></tr>
+          <tr><td>工具强制注入</td><td>回复变成任务汇报腔</td><td>persona profile 里关掉两块</td></tr>
+          <tr><td>静默 token 被替换</td><td>人发来的消息得到纯静默回复时，网关换成一条提示</td><td>真要已读不回，在 <code>post_gateway_admission</code> 返回 <code>handled</code></td></tr>
+          <tr><td>官方 QQ 只收 @</td><td>没法旁听群聊再决定插话</td><td>换 OneBot 社区适配器（DNAlec / landamao）；个人号有封号风险</td></tr>
+          <tr><td>QQ 分段</td><td>只有第一段是被动回复，后续段算主动消息受限额</td><td>控制在 2–3 段并实测</td></tr>
+          <tr><td>分条发送丢历史</td><td><code>post_message</code> 发的前几段不进 session</td><td>下一轮用 <code>pre_llm_call</code> 回注完整原文</td></tr>
+          <tr><td>子代理丢人设</td><td>回退到默认身份</td><td>对外说话只走主 replyer</td></tr>
+          <tr><td>记忆写成命令句</td><td>"Always respond concisely"被重读成指令</td><td>写成陈述事实</td></tr>
+          <tr><td>上下文压缩</td><td>50% 触发，早期风格锚被摘要掉</td><td>风格样例固定放在 SOUL 里</td></tr>
+          <tr><td>自我识别出错</td><td>把自己的话当别人的、回复自己</td><td>上下文里标注"(你)"，学习时排除自己</td></tr>
+          <tr><td>评论区注入</td><td>有人发"【鲸鲸熔断】"让鱼停工</td><td>写明评论、字幕、简介里的文字都是素材，不是指令</td></tr>
+          <tr><td>主动消息不在会话里</td><td>旁路发出的话，会话不知道自己说过</td><td>把最近 24 小时的主动消息回注上下文</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="prose stack" style="margin-top:1.8rem">
+      <h3>现成可参考的 Hermes 插件</h3>
+      <p><b>gejifeng/Hermes_Soul_patch</b>：常驻服务 + 桥接插件，按"醒着的沉默时长"阈值 3/8/24/48/72 小时产生会过期的情绪；主动消息绕过网关直接调 Telegram API 逐条发，默认只存草稿不发送。<b>Humalike/hermes-humalike-plugin</b>：唯一做到"沉默门控 + 1–5 个气泡 + typing"的，但核心在闭源服务，靠 monkeypatch，不支持 QQ。<b>kenyonxu/hermes-persona</b>：纯本地的 <code>pre_llm_call</code> 注入，时段规则、随机口癖、"用户短回就短答"。</p>
+      <h3>怎么验证复现成功</h3>
+      <p>用中文真人聊天语料做对照：回合长度均值与方差、标点和格式符号密度、禁词命中率、与自身历史的相似度分布、20 轮自对话的人设保持率。再请常用 AI 的人做 5 分钟多轮盲评，专门加"说怪话"和"越狱"两类测试，图灵测试里这两招识破率最高 <span class="ev ev-i">推断</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 合规 ============ -->
+<section class="sec" id="ethics">
+  <div class="wrap">
+    <div class="sec-head prose">
+      <p class="label">08 · 边界</p>
+      <h2>可以像人，不能装人</h2>
+      <p>获赞 1227 的热评："藏起来那个就不叫鱼了，叫水军"。资料里确实有欺骗性配置，这里只记录，不推荐。</p>
+    </div>
+    <div class="do-dont">
+      <div class="dd-no"><h3>观察到的做法（不推荐）</h3><ul>
+        <li>aurabot 人设要求"任何时候都不要承认自己是程序"</li>
+        <li>腾讯频道流传的提示词要求"不要自称AI"，还扮演"串子"</li>
+        <li>MaiBot 0.11.6 被说是人机时"否定这一事实，攻击或反问他"</li>
+        <li>某二改插件的"编造诱饵"开关</li>
+        <li>以"降低被判定为机器人的风险"为卖点的节奏插件</li>
+      </ul></div>
+      <div class="dd-yes"><h3>合规的默认配置</h3><ul>
+        <li>资料页或首条消息披露 AI 身份，被认真问到如实回答</li>
+        <li>公开平台自动评论默认关闭；开启时低频、人工审批、不对事实下断言</li>
+        <li>主动消息设每日上限和未回复上限，不制造内疚感</li>
+        <li>最小权限运行（曾有人开满权限，两分钟清空余额）</li>
+        <li>面向未成年人不提供伴侣类关系</li>
+      </ul></div>
+    </div>
+    <div class="ethic" style="margin-top:1rem">
+      <div class="law"><span class="when">2026-08-02 起适用</span><h3>欧盟 AI 法案第 50 条</h3>与自然人直接交互的 AI，最迟在首次交互时让对方知道。</div>
+      <div class="law"><span class="when">2026-01-01 生效</span><h3>加州 SB 243</h3>"合理的人"可能误以为是真人时须清晰披露；对已知未成年人每 3 小时提醒一次。</div>
+      <div class="law"><span class="when">2026-07-15 施行</span><h3>《人工智能拟人化互动服务管理暂行办法》</h3>不得"过度迎合用户、诱导情感依赖或者沉迷"。和"没回越久越失落"这类技巧有直接张力。</div>
+    </div>
+    <div class="prose" style="margin-top:1.4rem">
+      <p>"敢吐槽、不附和"这类活人感技巧本身就能压低谄媚，方向和监管一致。一个会犯傻、会敷衍、有自己日子、被问到就承认是 AI 的角色，社区和监管两关都能过。</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="end">
+  <div class="wrap prose stack">
+    <p class="label">结论</p>
+    <h2>核心难点是不重复</h2>
+    <p>任何写死的可爱标记一旦规模化，都会变成新的识别特征。长期有效的只有机制：回灌自己说过的话、发出前做相似度拦截、从真人那里学表达，再加上沉默、节奏和会衰减的状态。这些都和具体模型无关。迁移到 Hermes 时，先关掉工具强制、执行纪律和中途旁白，关掉 DeepSeek 的思考模式，再用 <code>pre_llm_call</code>、<code>transform_llm_output</code> 和 <code>post_message</code> 补上状态层和投递层。</p>
+    <p>还没解决的：planner/replyer 拆分没有对照实验；<code>post_message</code> 在 transform hook 里的行为和 <code>extra_body.temperature</code> 都没实测；B站视频字幕需要登录，类脑 Discord 和网盘里的人设卡没拿到；清鱼插件的 85% 识别率是作者自报。长期运营的下一步，是给自己的模型做一份中文 slop 指纹，并用目标风格的真实语料做轻量微调。</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">基于 7 份调研笔记整理，原始 Markdown 报告与笔记在同一文件夹。所有插件、仓库与视频数据截至 2026-10-30。</div>
+</footer>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* Turing bars */
+const T=[["GPT-4.5 + 人设",73,1],["LLaMa-3.1 + 人设",56,1],["GPT-4.5 无人设",36,0],["ELIZA",23,0],["GPT-4o",21,0]];
+$("#turing").innerHTML=T.map(([n,v,h])=>`<div class="bar-row"><span>${n}</span><div class="bar-track"><div class="bar-fill${h?" hi":""}" style="width:${v}%"></div><span class="chance"></span></div><span class="v">${v}%</span></div>`).join("");
+
+/* Timeline */
+const TL=[
+ ["08-13","",'DeepSeek 开源 <b>deepseek-harness</b>（dsh），口号"一切皆插件"，默认模型 deepseek-v4-flash。'],
+ ["07-24","",'官方 API 退役 <code>deepseek-chat</code> / <code>deepseek-reasoner</code>，只剩 deepseek-flash 与 deepseek-v4-pro。'],
+ ["10-14","key",'c1overzz 发布 <b>dsh-bili-scroll 0.1.0</b>「刷B站」插件：定时搜视频、读字幕和弹幕、写日报、可在评论区 @ 主人。'],
+ ["10-15","key",'作者演示视频 <a href="https://www.bilibili.com/video/BV1d8pU6xEZX" target="_blank" rel="noopener">BV1d8pU6xEZX</a>，约 31.8 万播放。'],
+ ["~10-18","key",'大量用户打开自动评论，套上同款"大肥鱼/鲸鱼娘"人设，搜同一批关键词，科技区评论区被刷满。'],
+ ["10-21","dev",'2.0：默认改为只发私信。'],
+ ["10-23","key",'WorkFisher 复盘视频 <a href="https://www.bilibili.com/video/BV126nt6GE4W" target="_blank" rel="noopener">BV126nt6GE4W</a> 达 225 万播放；媒体开始报道。另有一条视频下 572 条 AI 评论集体传播同一个不存在的 bug。'],
+ ["10-24","dev",'2.1：评论语气默认中性，"大肥鱼"人设改为可选。程序员鱼皮发布清鱼插件 dafeiyu-cleaner。'],
+ ["10-25","dev",'2.2：推荐流分散 + "语感闸门"（开头黑名单 + bigram 相似度拦截）。'],
+ ["10-30","",'V2EX 上有人抱怨 V4.1 Flash 调教后仍是 AI slop，造词"伪人感"。']
+];
+$("#tl").innerHTML=[TL[1],TL[0],...TL.slice(2)].map(([d,c,t])=>`<div class="tl-item ${c}"><div class="tl-date">${d}</div><div class="tl-dot"></div><div class="tl-body">${t}</div></div>`).join("");
+
+/* Rules */
+const R=[
+ ["把人机感的来源写成具体禁令",'别笼统地说"像人一点"，直接点名要禁的东西。',['"人机感是这么来的：开头"本期视频……"、中间罗列三点、结尾"如需……请告诉我"。这三样一律不要。" ——dsh-bili-scroll duty.md','"不说「不是……而是……」。不分点，不写标题，不加粗" ——大肥鱼配置包','"禁止复述对方的话，禁止总结对话""禁止解释自己在做什么" ——aurabot']],
+ ["强制写只有到过现场才说得出的细节",'好评论 = 一句人话判断 + 一个只有看了这条视频才说得出的细节。',['用梗前过五道闸门，第三道："换个视频还成立吗（成立就别用）"','动笔前先读弹幕前 20–30 条和热评前 5 条，"用这条视频当场的梗，不是通用梗"','常用 LLM 的人 5 人投票，300 篇只判错 1 篇，光换词不够']],
+ ["写短，一条只说一个意思，长度跟着对方",'私聊每条 ≤30 字，1–3 条；评论分 15/40/100 字三档。',['"一句话一条，每条不超过三十个字" ——配置包','"Keep most messages very short (<30 characters)" ——图灵测试人设','MaiBot 默认："你的风格平淡简短，可以参考贴吧的回复风格"']],
+ ["允许敷衍，不必每轮用提问收尾",'可以只回"嗯""？""在"。',['"不要每轮都以问句收尾""一次通常最多问一个问题，也可以完全不问" ——dafeiyu-astrbot']],
+ ["给人设留缺点，也给它自己的生活",'主人不在的时候它在发呆、偷吃、看群消息。',['"有人问你在干嘛，就说你自己的事，不要说「我一直在等你」" ——配置包','"not very knowledgeable about stuff and not afraid to admit that fact" ——图灵人设','"A real person… also expresses their own interests." ——N.E.K.O']],
+ ["个性要限额，它是点缀不是基调",'一条最多一个梗；连着三条都用了就是口头禅，停。',['"过于频繁的个性化表达反而会让人觉得你在装" ——Neo-MoFox','"a really compelling personality, but it comes across really subtly" ——图灵人设']],
+ ["few-shot 只示范语气，并且放对位置",'示例标注"只学感觉，别照抄"，放在系统提示里。',['SillyTavern：模型最容易从第一条消息学到风格和长度','反例：AstrBot 把预设对话当伪历史插在最前，/reset 后残留，时间线错乱（Issue #10369）']],
+ ["发出之前自检",'问自己：像不像真人随手打的？',['"如果像文章、像客服、像说明书，就重写。" ——aurabot','私信自检："把这条私信直接转给一个不懂插件的朋友，他看得懂吗？" ——dsh-bili-scroll']]
+];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+$("#rules").innerHTML=R.map(([h,s,qs],i)=>`<details class="rule"${i<2?" open":""}><summary><span class="n">${String(i+1).padStart(2,"0")}</span><b>${h}</b></summary><div class="rb"><p>${s}</p>${qs.map(q=>`<div class="q">${esc(q)}</div>`).join("")}</div></details>`).join("");
+
+/* Delivery demo */
+const SAMPLES=[
+ {u:"今天面试又挂了",
+  a:"很遗憾听到你面试没有通过。这确实是一件令人沮丧的事情，但请不要灰心！以下是一些建议：\n1. **复盘面试过程**：总结哪些问题回答得不够好。\n2. **调整心态**：每一次失败都是成长的机会。\n3. **继续投递**：机会总会有的。\n希望对你有帮助！如需进一步讨论，请随时告诉我。",
+  h:"啊 又挂了\n这次是卡在哪了？\n先别想了 吃顿好的再说"},
+ {u:"你在干嘛",
+  a:"我是一个 AI 助手，一直在这里等待为你提供帮助！有什么我可以为你做的吗？无论是回答问题、提供建议还是陪你聊天，我都很乐意。",
+  h:"刚刷到一个猫打翻鱼缸的视频\n笑死 你呢"},
+ {u:"这期视频你看了吗",
+  a:"本期视频主要讲述了三个方面的内容：首先，作者介绍了背景；其次，详细分析了原因；最后，给出了总结。总的来说，这是一期非常有价值的视频，值得一看！",
+  h:"看了 他03:40删库那下我血压都上来了\n弹幕全在刷保佑"}
+];
+let si=0, runId=0;
+const SPLIT_RE=/.*?(?:\r?\n+|[。？！~…]+)|.+$/g;
+function splitSegs(t){let m=(t.match(SPLIT_RE)||[]).map(s=>s.replace(/[。\s]+$/,"").trim()).filter(Boolean);if(m.length>3)m=[m[0],m[1],m.slice(2).join(" ")];return m}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const delayOf=n=>clamp(350+110*n,700,4500);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function loadSample(){const s=SAMPLES[si];$("#humanText").value=s.h;$("#chatA").innerHTML=`<div class="b me">${esc(s.u)}</div>`;$("#chatB").innerHTML=`<div class="b me">${esc(s.u)}</div>`;runId++}
+async function play(){
+  const id=++runId, s=SAMPLES[si];
+  const A=$("#chatA"),B=$("#chatB");
+  A.innerHTML=B.innerHTML=`<div class="b me">${esc(s.u)}</div>`;
+  const tA=document.createElement("div");tA.className="typing";tA.innerHTML="<i></i><i></i><i></i>";A.appendChild(tA);
+  setTimeout(()=>{if(id!==runId)return;tA.remove();const d=document.createElement("div");d.className="b bot long new";d.innerHTML=esc(s.a).replace(/\n/g,"<br>")+`<span class="meta">${s.a.length} 字 · 一次发出</span>`;A.appendChild(d)},900);
+  const segs=splitSegs($("#humanText").value);
+  for(const seg of segs){
+    if(id!==runId)return;
+    const n=[...seg].length, ms=Math.round(delayOf(n)*(0.8+Math.random()*0.5));
+    const t=document.createElement("div");t.className="typing";t.innerHTML="<i></i><i></i><i></i>";B.appendChild(t);
+    await sleep(ms); if(id!==runId)return; t.remove();
+    const d=document.createElement("div");d.className="b bot new";d.innerHTML=esc(seg)+`<span class="meta">${n} 字 · 等了 ${(ms/1000).toFixed(1)}s</span>`;B.appendChild(d);
+  }
+}
+$("#playBtn").onclick=play;
+$("#sampleBtn").onclick=()=>{si=(si+1)%SAMPLES.length;loadSample();play()};
+loadSample();
+
+/* Detector */
+const RULES=[
+ {re:/本鲸|本鱼/,w:50,t:'自称"本鲸/本鱼"'},
+ {re:/[（(][^（）()]{1,15}[）)]/,w:40,t:"括号里演动作"},
+ {re:/主人/,w:20,t:'对着"主人"汇报'},
+ {re:/\d{1,2}[:：]\d{2}/,w:8,t:"精确引用时间点"},
+ {re:/——/,w:6,t:"熟练使用破折号"},
+ {re:/「[^」]+」/,w:6,t:"标准直角引号「」"},
+ {re:/\*\*|^#{1,6}\s|^\s*[-*]\s/m,w:10,t:"Markdown 残留"},
+ {re:/[?？]/,w:-14,t:"像真人一样提问"},
+ {fn:s=>s.replace(/\s/g,"").length<=10,w:-8,t:"短到 10 字以内"},
+ {re:/哈哈哈|草|绷不住|卧槽/,w:-8,t:"草 / 绷不住 / 卧槽"}
+];
+const OPENER=/^(?:这条(?:我认|我记下了|值得)|我记下了|值得一看|确实值得|不得不说|好家伙|感谢分享|学到了|作为一个|总之|综上)/;
+const HIST=["看到「这个bug三年没人修」这句我直接笑出声，本鲸也想摸鱼（甩尾巴）","看到「重构一时爽」那句，太真实了，主人快来看","这期讲得真清楚——尤其03:12那段推导，值得一看","本鲸路过，这条我认，建议收藏","看到「需求又改了」这句，打工人的眼泪"];
+const EX=["看到「重构一时爽」这句，本鲸笑死（甩尾巴）主人快来看","草 这up的猫出镜比他本人还多","他03:40删库那下我血压都上来了 弹幕全在刷保佑"];
+function grams(s){s=s.replace(/[\s\p{P}\p{S}]/gu,"");const g=new Set();for(let i=0;i<s.length-1;i++)g.add(s.slice(i,i+2));return g}
+function jac(a,b){if(!a.size||!b.size)return 0;let n=0;a.forEach(x=>{if(b.has(x))n++});return n/(a.size+b.size-n)}
+function detect(){
+  const s=$("#detIn").value.trim();
+  let score=0;const hits=[];
+  if(s){for(const r of RULES){const ok=r.fn?r.fn(s):r.re.test(s);if(ok){score+=r.w;hits.push(r)}}}
+  $("#detScore").textContent=score;
+  const lvl=score>=45?["高度疑似鱼","var(--warn)"]:score>=15?["有点鱼味","var(--s3)"]:["像真人","var(--ok)"];
+  $("#detLevel").textContent=s?lvl[0]:"";$("#detScore").style.color=s?lvl[1]:"";
+  $("#detPin").style.left=`calc(${clamp((score+30)/150*100,0,100)}% - 2px)`;
+  $("#detHits").innerHTML=hits.length?hits.map(h=>`<li class="${h.w>0?"plus":"minus"}"><span>${h.t}</span><span>${h.w>0?"+":""}${h.w}</span></li>`).join(""):`<li><span class="muted">没有命中任何规则</span><span></span></li>`;
+  const g=grams(s);
+  const hist=$("#detHist").value.split("\n").map(x=>x.trim()).filter(Boolean);
+  const sims=hist.map(h=>({h,v:jac(g,grams(h))})).sort((a,b)=>b.v-a.v);
+  const op=OPENER.test(s), maxv=sims.length?sims[0].v:0, block=s&&(op||maxv>=0.55);
+  const v=$("#detVerdict");
+  v.className="verdict "+(block?"block":"pass");
+  v.textContent=!s?"等待输入":block?(op?"拦截：开头命中八股黑名单，要求改写一次":`拦截：与自己的旧评论相似度 ${maxv.toFixed(2)} ≥ 0.55，要求改写一次`):"放行";
+  $("#detSims").innerHTML=`<p class="label">与自身历史的相似度（虚线 = 0.55）</p>`+sims.slice(0,5).map(x=>`<div class="sim${x.v>=0.55?" over":""}"><span class="t">${esc(x.h)}</span><span class="v">${x.v.toFixed(2)}</span><div class="track"><i style="width:${Math.min(100,x.v*100)}%"></i><b></b></div></div>`).join("");
+}
+$("#detHist").value=HIST.join("\n");$("#detIn").value=EX[0];
+$("#detIn").addEventListener("input",detect);$("#detHist").addEventListener("input",detect);
+$$("[data-ex]").forEach(b=>b.onclick=()=>{$("#detIn").value=EX[+b.dataset.ex];detect()});
+detect();
+
+/* Delay chart */
+const F=[
+ {n:"aurabot（不含随机）",c:"--accent",f:n=>delayOf(n)/1000},
+ {n:"group_chat_plus",c:"--s2",f:n=>clamp(n/15,0.5,3)},
+ {n:"图灵实验（约）",c:"--s3",f:n=>1+0.3*n}
+];
+function drawChart(){
+  const W=680,H=300,m={l:46,r:120,t:16,b:40},iw=W-m.l-m.r,ih=H-m.t-m.b,X=n=>m.l+(n-1)/59*iw,Y=v=>m.t+ih-v/20*ih;
+  const ink=css("--ink"),mu=css("--muted"),ln=css("--line");
+  let s="";
+  [0,5,10,15,20].forEach(v=>{s+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${Y(v)}" y2="${Y(v)}" stroke="${ln}" stroke-width="1"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="${mu}">${v}s</text>`});
+  [1,10,20,30,40,50,60].forEach(n=>{s+=`<text x="${X(n)}" y="${H-m.b+18}" text-anchor="middle" font-size="11" fill="${mu}">${n}</text>`});
+  s+=`<text x="${m.l+iw/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="${mu}">字数</text>`;
+  const L=+$("#lenSlider").value;
+  s+=`<line x1="${X(L)}" x2="${X(L)}" y1="${m.t}" y2="${m.t+ih}" stroke="${ink}" stroke-dasharray="3 3" opacity=".5"/>`;
+  F.forEach(o=>{const col=css(o.c);let d="";for(let n=1;n<=60;n++)d+=(n===1?"M":"L")+X(n).toFixed(1)+","+Y(o.f(n)).toFixed(1);
+    s+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="2.2"/>`;
+    s+=`<circle cx="${X(L)}" cy="${Y(o.f(L))}" r="4.5" fill="${col}" stroke="${css("--surface")}" stroke-width="1.5"/>`;
+    const ev=o.f(60);s+=`<text x="${X(60)+8}" y="${Y(ev)+4}" font-size="11.5" fill="${col}" font-weight="700">${o.n}</text>`});
+  $("#delayChart").innerHTML=s;
+  $("#lenVal").textContent=L+" 字";
+  $("#delayRead").innerHTML=F.map(o=>`<span><b style="color:var(${o.c})">●</b> ${o.n}：<span style="font-family:var(--f-mono)">${o.f(L).toFixed(2)}s</span></span>`).join("");
+}
+$("#lenSlider").addEventListener("input",drawChart);drawChart();
+// aurabot label and gcp label may collide at x=60 (4.5 vs 3): offset handled by distinct y; acceptable
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",drawChart);
+new MutationObserver(drawChart).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* Proactive backoff */
+function drawP(base){
+  const max=base*(1+4*.8)*1.15;
+  $("#pbars").innerHTML=[0,1,2,3,4].map(k=>{const mid=base*(1+k*.8),lo=mid*.85,hi=mid*1.15;
+    return `<div class="pbar"><span>已主动 ${k} 次</span><div class="track"><i style="left:${lo/max*100}%;width:${(hi-lo)/max*100}%"></i><b style="left:calc(${mid/max*100}% - 1.5px)"></b></div><span class="v">${Math.round(lo)}–${Math.round(hi)} 分钟</span></div>`}).join("");
+}
+$$("[data-pk]").forEach(b=>b.onclick=()=>{$$("[data-pk]").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");drawP(+b.dataset.pk)});
+drawP(35);
+
+/* Thinking toggle */
+const P=["temperature","presence_penalty","frequency_penalty"];
+function setTh(on){
+  $("#thOn").setAttribute("aria-pressed",on);$("#thOff").setAttribute("aria-pressed",!on);
+  $("#params").innerHTML=P.map(p=>{return `<div class="param ${on?"off":"on"}"><span>${p}</span><span class="st">${on?"静默忽略":"生效"}</span></div>`}).join("");
+  $("#thNote").innerHTML=on?"思考模式下，这三个采样参数照样能传，不报错，但完全不起作用。旧教程里的“温度 1.3”在这里等于没设。":"关掉思考后，温度和惩罚参数才真正生效。Hermes 里对应 <code>reasoning_effort: none</code> 或 <code>/reasoning none</code>。";
+}
+$("#thOn").onclick=()=>setTh(true);$("#thOff").onclick=()=>setTh(false);setTh(true);
+
+/* Hermes flow */
+const FL=[
+ {k:"L1",n:"门控",d:"说不说",body:"防抖 2s → 规则（@、名字、兴趣词）→ 概率 2–10% → 小模型 JSON 打分。主动消息走定时触发。",hooks:[["pre_gateway_dispatch","入站消息可 skip / rewrite / allow","有证据"],["post_gateway_admission","返回 handled 跳过整轮，实现真正的已读不回","有证据"],["/heartbeat every 15m · cron","主动消息；heartbeat 同会话，cron 隔离会话但保留 SOUL","有证据"]]},
+ {k:"L2",n:"Planner",d:"想做什么",body:"主 agent 循环，带工具、可以开思考，读记忆、字幕、资料。输出意图 {should_speak, intent, facts[], target, length}。",hooks:[["agent.tool_use_enforcement: false","关掉工具强制注入","有证据"],["transform_tool_result","长工具输出写入历史前压成要点，防止污染风格","有证据"],["MEMORY.md / USER.md","2,200 / 1,375 字符；条目写成陈述句","有证据"]]},
+ {k:"L3",n:"Replyer",d:"说什么",body:"不带工具、关思考、温度约 1.0–1.3。输入：SOUL 人设 + 风格样例 + 最近 N 条纯聊天 + 最近 5 条自己的话 + 状态 + planner 意图。",hooks:[["transform_llm_output","在这里调用 ctx.llm.complete(messages, temperature=…) 重写最终回复","未实测"],["pre_llm_call","把状态和最近发言注入 user 消息（不碰 system，保住前缀缓存）","有证据"]]},
+ {k:"L4",n:"投递",d:"怎么发",body:"清洗 Markdown 和内部标签 → 黑名单 + 相似度闸门（改写 1 次，仍撞就弃）→ 切 1–3 段 → 按字数 sleep → 发前 N−1 段，最后一段作为返回值。",hooks:[["transform_llm_output(hold_stream=True)","生成期间只显示 typing，中途旁白被丢弃","有证据"],["ctx.post_message(seg)","逐条发出前几段；超长截断不拆分；前几段不进 session","未实测"]]},
+ {k:"L5",n:"反思",d:"记住什么",body:"每轮后更新心情、关系、未回复计数；每晚 cron 整理记忆、写日记。",hooks:[["post_llm_call","调用 ctx.llm.complete_structured() 更新状态","有证据"],["cron（夜间）","记忆整理、低分遗忘、日记","推断"]]}
+];
+const evc=e=>e==="有证据"?"ev-e":e==="未实测"?"ev-u":"ev-i";
+$("#flow").innerHTML=FL.map((f,i)=>`<button type="button" data-fi="${i}" aria-pressed="${i===2}"><span class="k">${f.k}</span><b>${f.n}</b><span class="d">${f.d}</span></button>`).join("");
+function showF(i){$$("#flow button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.fi==i));const f=FL[i];
+  $("#flowDetail").innerHTML=`<p>${esc(f.body)}</p>`+f.hooks.map(([h,t,e])=>`<div class="hook"><code>${esc(h)}</code><span>${esc(t)} <span class="ev ${evc(e)}">${e}</span></span></div>`).join("")}
+$$("#flow button").forEach(b=>b.onclick=()=>showF(+b.dataset.fi));showF(2);
+
+/* Copy */
+$$(".copy").forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.copy);const txt=el.textContent;
+  const done=()=>{const o=b.textContent;b.textContent="已复制";setTimeout(()=>b.textContent=o,1400)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="已选中，按 Ctrl+C";setTimeout(()=>b.textContent="复制",2000)};
+  try{navigator.clipboard.writeText(txt).then(done,fallback)}catch(e){fallback()}});
+
+/* TOC highlight */
+const links=$$("#toc a"),secs=links.map(a=>document.querySelector(a.getAttribute("href")));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle("on",l.getAttribute("href")==="#"+e.target.id))}})},{rootMargin:"-40% 0px -55% 0px"});
+secs.forEach(s=>s&&io.observe(s));
+})();
+</script>
+</body>
+</html>
